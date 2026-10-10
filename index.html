@@ -3,903 +3,718 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boussole Décisionnelle & Méta-Diagnostic Clinique</title>
+    <title>123 Rigolo - L'App Universelle pour Compter et Apprendre</title>
+    <!-- PWA / Mobile Meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#38bdf8">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <!-- Polices (Fredoka + Open Dyslexic) -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Open+Dyslexic&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #030508;
-            --card-bg: #0b0f17;
-            --text-main: #f1f5f9;
-            --text-muted: #8c9bae;
-            --accent: #38bdf8;
-            --accent-hover: #7dd3fc;
-            --border: #1e293b;
-            --warning: #f43f5e;
-            --success: #10b981;
-            --purple: #c084fc;
-            --amber: #f59e0b;
-            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body.low-stim {
-            --bg-color: #0d0d0d;
-            --card-bg: #141414;
-            --text-main: #d4d4d4;
-            --text-muted: #737373;
-            --accent: #a3a3a3;
-            --accent-hover: #e5e5e5;
-            --border: #262626;
-            --warning: #a3a3a3;
-            --success: #a3a3a3;
-            --purple: #a3a3a3;
-            --amber: #a3a3a3;
-        }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 860px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 40px;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.95);
-            position: relative;
-        }
-
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .top-bar .brand {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--accent);
-            letter-spacing: -0.5px;
-        }
-
-        .top-bar .controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            margin-top: 0;
-            margin-bottom: 8px;
-            color: #fff;
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
-
-        .step, .view {
-            display: none;
-        }
-
-        .step.active, .view.active {
-            display: block;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.92rem;
-            color: #e2e8f0;
-        }
-
-        textarea, select, input[type="text"] {
-            width: 100%;
-            padding: 12px 16px;
-            background-color: #06080d;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-main);
-            font-size: 0.95rem;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-        }
-
-        textarea:focus, select:focus, input[type="text"]:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        textarea {
-            resize: vertical;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 25px;
-            gap: 10px;
-        }
-
-        button {
-            background-color: var(--accent);
-            color: #030712;
-            border: none;
-            padding: 12px 22px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.92rem;
-            transition: background 0.2s, transform 0.1s;
-        }
-
-        button:hover {
-            background-color: var(--accent-hover);
-        }
-
-        button.secondary {
-            background-color: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-        }
-
-        button.secondary:hover {
-            color: var(--text-main);
-            border-color: var(--text-muted);
-        }
-
-        button.danger {
-            background-color: var(--warning);
-            color: #fff;
-        }
-
-        .mode-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        @media (max-width: 640px) {
-            .mode-grid { grid-template-columns: 1fr; }
-            .container { padding: 20px; }
-            .metric-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-
-        .mode-card {
-            background: #06080d;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .mode-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-
-        .mode-card h3 {
-            margin-top: 0;
-            color: var(--accent);
-            font-size: 1.05rem;
-            margin-bottom: 8px;
-        }
-
-        .mode-card p {
-            margin: 0;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-
-        .diagnostic-card {
-            background-color: #06080d;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-        }
-
-        .diagnostic-card h3 {
-            margin-top: 0;
-            color: var(--accent);
-            font-size: 0.95rem;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .metric-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .metric-box {
-            background: #06080d;
-            border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .metric-value {
-            font-size: 1.15rem;
-            font-weight: bold;
-            margin-top: 4px;
-            color: var(--accent);
-        }
-
-        .insight-item {
-            padding: 12px 16px;
-            margin-bottom: 12px;
-            border-radius: 6px;
-            font-size: 0.88rem;
-            line-height: 1.5;
-        }
-
-        .insight-warning {
-            color: var(--warning);
-            background: rgba(244, 63, 94, 0.1);
-            border-left: 4px solid var(--warning);
-        }
-
-        .insight-success {
-            color: var(--success);
-            background: rgba(16, 185, 129, 0.1);
-            border-left: 4px solid var(--success);
-        }
-
-        .insight-amber {
-            color: var(--amber);
-            background: rgba(245, 158, 11, 0.1);
-            border-left: 4px solid var(--amber);
-        }
-
-        .insight-purple {
-            color: var(--purple);
-            background: rgba(192, 132, 252, 0.1);
-            border-left: 4px solid var(--purple);
-        }
-
-        .progress {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .history-item {
-            background: #06080d;
-            border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .micro-actions {
-            list-style: none;
-            padding: 0;
-            margin: 10px 0 0 0;
-        }
-
-        .micro-actions li {
-            position: relative;
-            padding-left: 24px;
-            margin-bottom: 8px;
-            font-size: 0.88rem;
-            color: var(--text-main);
-        }
-
-        .micro-actions li::before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: var(--accent);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.72rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-left: 6px;
-        }
-        .badge-tdah { background: rgba(56, 189, 248, 0.2); color: var(--accent); }
-        .badge-psy { background: rgba(192, 132, 252, 0.2); color: var(--purple); }
+        body { font-family: 'Fredoka', cursive, sans-serif; }
+        .font-dys { font-family: 'OpenDyslexic', sans-serif !important; }
+        .bounce-scale { transition: transform 0.2s; }
+        .bounce-scale:active { transform: scale(0.92); }
     </style>
 </head>
-<body>
+<body id="app-body" class="bg-sky-100 min-h-screen flex flex-col items-center justify-between p-4 select-none">
 
-<div class="container">
-
-    <div class="top-bar">
-        <div class="brand">🧭 BUSSOLE DÉCISIONNELLE v4.0</div>
-        <div class="controls">
-            <button class="secondary" style="padding: 5px 12px; font-size: 0.78rem;" onclick="toggleLowStim()" id="low-stim-btn">Mode Épuré (Anti-Surcharge)</button>
-        </div>
-    </div>
-
-    <!-- VUE 0 : ACCUEIL ET SÉLECTION DU PROTOCOLE -->
-    <div class="view active" id="view-home">
-        <h1>Méta-Diagnostic & Discernement Clinique</h1>
-        <div class="subtitle">Système expert d'analyse des choix complexes, des crises, du sabotage et des particularités neurodivergentes (TDAH, TSA, Bipolarité, TPL, TOC). Sélectionnez votre protocole :</div>
-
-        <div class="mode-grid">
-            <div class="mode-card" onclick="startProtocol('standard')">
-                <h3>Bifurcation & Choix Stratégique</h3>
-                <p>Analyse approfondie des choix majeurs (carrière, vie affective, exil) confrontés au deuil et aux loyautés invisibles.</p>
-            </div>
-            <div class="mode-card" onclick="startProtocol('neuro')">
-                <h3>Neurodivergence & Biais (TDAH / TSA / Psy) <span class="badge badge-tdah">Spécifique</span></h3>
-                <p>Évaluation des biais dopaminergiques, de la cécité temporelle, du RSD (rejet), de l'hypomanie, du doute obsessionnel et des shutdown.</p>
-            </div>
-            <div class="mode-card" onclick="startProtocol('crisis')">
-                <h3>Crise, Acting-Out & Urgence</h3>
-                <p>Pour les impulsions de rupture brutale, les pulsions de fuite en avant et l'évaluation du risque de passage à l'acte.</p>
-            </div>
-            <div class="mode-card" onclick="startProtocol('sabotage')">
-                <h3>Auto-Sabotage & Pénitence</h3>
-                <p>Déconstruction du masochisme moral, de la culpabilité inconsciente et de la peur pathologique du succès (Paradoxe de Jonas).</p>
-            </div>
-        </div>
-
-        <div class="btn-group">
-            <button class="secondary" onclick="openHistory()">Consulter le Coffre-Fort Local (Vault)</button>
-        </div>
-    </div>
-
-    <!-- VUE 1 : QUESTIONNAIRE SÉQUENTIEL SÉCURISÉ -->
-    <div class="view" id="view-questionnaire">
-        <div class="progress">
-            <span id="progress-indicator">Étape 1 sur 7</span>
-            <button class="secondary" style="padding: 4px 10px; font-size: 0.75rem;" onclick="returnHome()">Abandonner</button>
-        </div>
-
-        <!-- ÉTAPE 1 : PHÉNOMÉNOLOGIE & DÉCLENCHEUR -->
-        <div class="step active" id="step-1">
-            <h1>1. Le Choix & l'Urgence Affective</h1>
-            <div class="subtitle">Exprimez clairement la décision ou l'acte envisagé, sans filtre ni autocensure.</div>
-            
-            <label for="q-decision">Quelle est la décision ou l'acte stratégique envisagé ?</label>
-            <textarea id="q-decision" rows="3" placeholder="Ex: Tout plaquer / Quitter cette relation / Lancer ce projet fou / Couper les ponts..."></textarea>
-            
-            <label for="q-urgency">Degré d'urgence éprouvé dans votre corps :</label>
-            <select id="q-urgency">
-                <option value="calm">Construit, posé et décanté depuis plusieurs mois</option>
-                <option value="pressured">Tension soutenue, besoin de clarté à court terme</option>
-                <option value="explosive">Pulsion brûlante / Besoin de trancher immédiatement sous peine d'exploser</option>
-                <option value="despair">Désespoir noir / Engourdissement (« Plus rien n'a de sens »)</option>
-            </select>
-
-            <div class="btn-group">
-                <button class="secondary" onclick="returnHome()">Retour</button>
-                <button onclick="nextWizardStep(1)">Suivant</button>
-            </div>
-        </div>
-
-        <!-- ÉTAPE 2 : MODULE NEURO-PSYCHIATRIQUE (TDAH, TPL, HYPOMANIE, TSA, TOC) -->
-        <div class="step" id="step-2">
-            <h1>2. Profilage Neurobiologique & Facteurs Émergents</h1>
-            <div class="subtitle">Analyse des perturbations dopaminergiques, de la réactivité au rejet et de l'état de surcharge.</div>
-            
-            <label for="q-stimulation">Est-ce que cette décision vous procure une excitation/stimuli immédiat (Hyperfocus) ?</label>
-            <select id="q-stimulation">
-                <option value="no">Non, c'est un projet profond qui conserve sa valeur même dans la routine neutre</option>
-                <option value="high">Oui, c'est une vague intense de nouveauté / soulagement dopaminergique immédiat</option>
-                <option value="escape">C'est une fuite frénétique pour échapper à un ennui ou une frustration insupportable</option>
-            </select>
-
-            <label for="q-trigger">Ce choix fait-il suite à une critique, un rejet perçu ou un conflit relationnel récent (RSD) ?</label>
-            <select id="q-trigger">
-                <option value="no">Non, indépendant des réactions d'autrui</option>
-                <option value="rsd">Oui, réaction abrupte suite à une blessure, un sentiment de rejet ou de dévaluation</option>
-            </select>
-
-            <label for="q-mania">Au cours des derniers jours, quel est votre niveau d'énergie / sommeil / confiance ?</label>
-            <select id="q-mania">
-                <option value="normal">Sommeil et niveau d'énergie habituels</option>
-                <option value="mania">Besoin de sommeil quasi-nul sans fatigue, sentiment de toute-puissance / exaltation</option>
-                <option value="depressed">Épuisement lourd, sommeil non réparateur, idées sombres</option>
-            </select>
-
-            <div class="btn-group">
-                <button class="secondary" onclick="prevWizardStep(2)">Précédent</button>
-                <button onclick="nextWizardStep(2)">Suivant</button>
-            </div>
-        </div>
-
-        <!-- ÉTAPE 3 : L'OMBRE & LE MASOCHISME MORAL -->
-        <div class="step" id="step-3">
-            <h1>3. L'Ombre & la Fonction Cachée de l'Acte</h1>
-            <div class="subtitle">Mettre en lumière ce que votre ego tente de fuir ou de punir inconsciemment.</div>
-            
-            <label for="q-shadow">Quel besoin secret, quelle honte ou quelle culpabilité cet acte cherche-t-il à apaiser ?</label>
-            <textarea id="q-shadow" rows="4" placeholder="Ex: C'est une façon de me punir d'avoir échoué, ou de devancer le rejet en sabotant la situation avant qu'on ne me quitte..."></textarea>
-            
-            <div class="btn-group">
-                <button class="secondary" onclick="prevWizardStep(3)">Précédent</button>
-                <button onclick="nextWizardStep(3)">Suivant</button>
-            </div>
-        </div>
-
-        <!-- ÉTAPE 4 : DYNAMIQUE SYSTÉMIQUE & LOYAUTÉS INVISIBLES -->
-        <div class="step" id="step-4">
-            <h1>4. Le Système & les Loyautés Invisibles</h1>
-            <div class="subtitle">L'influence inconsciente des contrats familiaux et transgénérationnels.</div>
-            
-            <label for="q-system">Si vous accomplissez cet acte, qui dans votre histoire familiale ou sociale auriez-vous l'impression de trahir ?</label>
-            <textarea id="q-system" rows="4" placeholder="Ex: Mes parents qui se sont sacrifiés pour ma sécurité, ou mon milieu d'origine qui réprouve la réussite individuelle..."></textarea>
-            
-            <div class="btn-group">
-                <button class="secondary" onclick="prevWizardStep(4)">Précédent</button>
-                <button onclick="nextWizardStep(4)">Suivant</button>
-            </div>
-        </div>
-
-        <!-- ÉTAPE 5 : LE DEUIL & LE PARADOXE DE JONAS -->
-        <div class="step" id="step-5">
-            <h1>5. Le Deuil Existentiel & la Peur de Réussir</h1>
-            <div class="subtitle">L'acceptation du renoncement absolu et l'angoisse de sa propre liberté.</div>
-            
-            <label for="q-grief">Quel renoncement irréversible (quel deuil) ce choix exige-t-il de vous ?</label>
-            <textarea id="q-grief" rows="3" placeholder="Ex: Renoncer au confort du connu, faire le deuil de mon image idéale..."></textarea>
-            
-            <label for="q-jonas">Paradoxe de Jonas : En quoi la perspective d'accéder à votre pleine autonomie vous effraie-t-elle ?</label>
-            <textarea id="q-jonas" rows="3" placeholder="Ex: Si je réussis, je n'aurai plus aucune excuse et je devrai assumer la responsabilité totale de mon existence..."></textarea>
-
-            <div class="btn-group">
-                <button class="secondary" onclick="prevWizardStep(5)">Précédent</button>
-                <button onclick="nextWizardStep(5)">Suivant</button>
-            </div>
-        </div>
-
-        <!-- ÉTAPE 6 : SOMATOGRAPHIE POLYVAGALE & RÉSERVES VITALES -->
-        <div class="step" id="step-6">
-            <h1>6. Réponse Somatique & Réserves Vitale</h1>
-            <div class="subtitle">Analyse neuro-somatique du système nerveux autonome.</div>
-            
-            <label for="q-somatics">Comment votre corps enregistre-t-il la projection de ce choix ?</label>
-            <select id="q-somatics">
-                <option value="flow">Expansion, ancrage, respiration ample (Vagal Ventral)</option>
-                <option value="chest">Serrement thoracique, rythme cardiaque accéléré (Sympathique / Fuite)</option>
-                <option value="freeze">Engourdissement, froid, sensation de vide / déréalisation (Vagal Dorsal / Shutdown)</option>
-                <option value="agitation">Agitation motrice frénétique, incapacité à rester en place</option>
-            </select>
-
-            <label for="q-reserves">Réserves d'énergie vitale globales disponibles (sur 10) :</label>
-            <select id="q-reserves">
-                <option value="high">8 à 10/10 : Réserves solides, capacité de supporter le stress</option>
-                <option value="medium">4 à 7/10 : Fatigue sous-jacente, résilience limitée</option>
-                <option value="critical">1 à 3/10 : Épuisement sévère / Proche du burn-out ou effondrement</option>
-            </select>
-
-            <div class="btn-group">
-                <button class="secondary" onclick="prevWizardStep(6)">Précédent</button>
-                <button onclick="nextWizardStep(6)">Suivant</button>
-            </div>
-        </div>
-
-        <!-- ÉTAPE 7 : COMPTEUR À ZÉRO & TEST DE LA PAGE BLANCHE -->
-        <div class="step" id="step-7">
-            <h1>7. Le Test de la Page Blanche</h1>
-            <div class="subtitle">Élimination des coûts irrécupérables (Sunk Cost) et du regard d'autrui.</div>
-            
-            <label for="q-reset">Si vous étiez seul(e) sur une île déserte, sans passé à justifier et sans témoin à impressionner, poseriez-vous cet acte ?</label>
-            <textarea id="q-reset" rows="4" placeholder="Ex: Non, je réalise que je le fais pour prouver quelque chose aux autres... ou Oui, c'est mon alignement intime..."></textarea>
-
-            <div class="btn-group">
-                <button class="secondary" onclick="prevWizardStep(7)">Précédent</button>
-                <button onclick="runCompleteAnalysis()">LANCER LE DIAGNOSTIC DÉFINITIF</button>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- VUE 2 : RÉSULTATS & BILAN CLINIQUE AVANCÉ -->
-    <div class="view" id="view-results">
-        <h1>Bilan Clinique & Diagnostic Multidimensionnel</h1>
-        <div class="subtitle">Analyse multi-axiale de la cohérence, de la résilience et des facteurs de risque neuro-psychiatriques.</div>
-        
-        <div class="metric-grid">
-            <div class="metric-box">
-                <div>Intégrité du Soi</div>
-                <div class="metric-value" id="res-integrity">--</div>
-            </div>
-            <div class="metric-box">
-                <div>Résilience Nerveuse</div>
-                <div class="metric-value" id="res-nervous">--</div>
-            </div>
-            <div class="metric-box">
-                <div>Autonomie / Loyauté</div>
-                <div class="metric-value" id="res-loyalty">--</div>
-            </div>
-            <div class="metric-box">
-                <div>Risque Acting-Out</div>
-                <div class="metric-value" id="res-acting">--</div>
-            </div>
-        </div>
-
-        <div class="diagnostic-card">
-            <h3>Synthèse Psychodynamique Globale</h3>
-            <div id="res-profile-text" style="line-height: 1.6; font-size: 0.95rem; margin-bottom: 10px;"></div>
-        </div>
-
-        <div class="diagnostic-card">
-            <h3>Diagnostic Neuro-Psychiatrique & Vigilances</h3>
-            <div id="res-insights"></div>
-        </div>
-
-        <div class="diagnostic-card" id="micro-actions-card" style="display:none;">
-            <h3>Plan de Découpage Cognitivement Sécurisé (Anti-Paralysie TDAH)</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Pour contourner la surcharge cognitive, exécutez uniquement la micro-étape 1 sans penser à la suite :</p>
-            <ul class="micro-actions" id="micro-actions-list"></ul>
-        </div>
-
-        <div class="btn-group">
-            <button class="secondary" onclick="returnHome()">Accueil</button>
+    <!-- EN-TÊTE -->
+    <header class="w-full max-w-2xl bg-white rounded-2xl shadow-md p-4 flex justify-between items-center mb-4">
+        <div class="flex items-center space-x-3">
+            <span class="text-3xl animate-bounce">🐱</span>
             <div>
-                <button class="secondary" onclick="exportJSON()">Exporter JSON</button>
-                <button onclick="downloadMarkdown()">Télécharger Bilan (.md)</button>
+                <h1 class="text-xl font-bold text-indigo-600">123 Rigolo</h1>
+                <p class="text-xs text-gray-500" id="header-profile-info">Profil : Aucun</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button onclick="openProfileModal()" class="bg-emerald-100 hover:bg-emerald-200 px-3 py-1.5 rounded-full text-xs font-bold text-emerald-700 border border-emerald-300">
+                👤 Profils
+            </button>
+            <button onclick="requestParentAccess()" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full text-xs font-bold text-slate-600 border border-slate-300">
+                ⚙️ Parents
+            </button>
+            <button onclick="openTrophies()" class="bg-indigo-100 hover:bg-indigo-200 px-3 py-1.5 rounded-full text-sm font-bold text-indigo-700 flex items-center space-x-1 shadow-sm">
+                <span>🏆</span>
+                <span id="trophy-count">0/3</span>
+            </button>
+            <div class="flex items-center space-x-1 bg-amber-100 px-3 py-1.5 rounded-full border border-amber-300">
+                <span class="text-lg">⭐</span>
+                <span id="score-display" class="font-bold text-amber-700 text-base">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENEUR PRINCIPAL -->
+    <main class="w-full max-w-2xl bg-white rounded-3xl shadow-xl p-6 flex flex-col items-center text-center relative overflow-hidden">
+        
+        <!-- ÉCRAN DE SÉLECTION DE PROFIL -->
+        <div id="profile-screen" class="w-full py-4 flex flex-col items-center">
+            <h2 class="text-2xl font-bold text-slate-700 mb-2">Qui veut jouer aujourd'hui ? 🎈</h2>
+            <p class="text-gray-500 mb-6 text-sm">Choisis ton profil ou crée-en un nouveau :</p>
+            
+            <div id="profiles-grid" class="grid grid-cols-2 gap-4 w-full max-w-md mb-6"></div>
+
+            <div class="flex space-x-2 w-full max-w-md">
+                <input type="text" id="new-profile-input" placeholder="Prénom du champion..." class="flex-1 border-2 border-slate-200 rounded-2xl px-4 py-3 text-lg focus:outline-none focus:border-indigo-500">
+                <button onclick="createNewProfile()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-2xl shadow-md">
+                    + Ajouter
+                </button>
+            </div>
+        </div>
+
+        <!-- ÉCRAN D'ACCUEIL / MENU PRINCIPAL -->
+        <div id="home-screen" class="w-full py-2 flex flex-col items-center hidden">
+            <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-2xl mb-4 w-full max-w-md flex justify-between items-center">
+                <p class="text-indigo-700 font-medium text-sm" id="mascot-speech">« Coucou ! Choisis ton niveau de jeu ! »</p>
+                <button onclick="switchProfile()" class="text-xs text-indigo-500 underline font-bold">Changer</button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 w-full max-w-md mb-4">
+                <button onclick="startGame(1)" class="bounce-scale bg-emerald-400 hover:bg-emerald-500 text-white font-bold p-2.5 rounded-2xl shadow-md flex items-center justify-between text-xs">
+                    <span>🌱 1. Comptage (3-5 ans)</span>
+                    <span class="bg-emerald-600 px-2 py-0.5 rounded-xl">1 à 5</span>
+                </button>
+                <button onclick="startGame(2)" class="bounce-scale bg-amber-400 hover:bg-amber-500 text-white font-bold p-2.5 rounded-2xl shadow-md flex items-center justify-between text-xs">
+                    <span>➕ 2. Additions (CP/CE1)</span>
+                    <span class="bg-amber-600 px-2 py-0.5 rounded-xl">Sommes</span>
+                </button>
+                <button onclick="startGame(7)" class="bounce-scale bg-orange-400 hover:bg-orange-500 text-white font-bold p-2.5 rounded-2xl shadow-md flex items-center justify-between text-xs">
+                    <span>➖ 3. Soustractions (CP/CE1)</span>
+                    <span class="bg-orange-600 px-2 py-0.5 rounded-xl">Retraits</span>
+                </button>
+                <button onclick="startGame(3)" class="bounce-scale bg-indigo-400 hover:bg-indigo-500 text-white font-bold p-2.5 rounded-2xl shadow-md flex items-center justify-between text-xs">
+                    <span>🚀 4. Suites & Bonds</span>
+                    <span class="bg-indigo-600 px-2 py-0.5 rounded-xl">Logique</span>
+                </button>
+                <button onclick="startGame(4)" class="bounce-scale bg-pink-400 hover:bg-pink-500 text-white font-bold p-2.5 rounded-2xl shadow-md flex items-center justify-between text-xs">
+                    <span>🔷 5. Géométrie</span>
+                    <span class="bg-pink-600 px-2 py-0.5 rounded-xl">Formes</span>
+                </button>
+                <button onclick="startGame(5)" class="bounce-scale bg-purple-400 hover:bg-purple-500 text-white font-bold p-2.5 rounded-2xl shadow-md flex items-center justify-between text-xs">
+                    <span>✖️ 6. Multiplications</span>
+                    <span class="bg-purple-600 px-2 py-0.5 rounded-xl">Tables</span>
+                </button>
+                <button onclick="startGame(8)" class="bounce-scale bg-violet-500 hover:bg-violet-600 text-white font-bold p-2.5 rounded-2xl shadow-md flex items-center justify-between text-xs">
+                    <span>➗ 7. Divisions (CE2/CM1)</span>
+                    <span class="bg-violet-700 px-2 py-0.5 rounded-xl">Partages</span>
+                </button>
+                <button onclick="startGame(6)" class="bounce-scale bg-teal-400 hover:bg-teal-500 text-white font-bold p-2.5 rounded-2xl shadow-md flex items-center justify-between text-xs">
+                    <span>💶 8. Heure & Monnaie</span>
+                    <span class="bg-teal-600 px-2 py-0.5 rounded-xl">Pratique</span>
+                </button>
+            </div>
+
+            <div class="flex space-x-2 w-full max-w-md mb-2">
+                <button onclick="startChronoMode()" class="flex-1 bounce-scale bg-rose-500 hover:bg-rose-600 text-white font-bold p-3 rounded-2xl shadow-md text-sm">
+                    ⏱️ Défi Chrono 30s
+                </button>
+            </div>
+
+            <button onclick="openDiploma()" id="diploma-btn" class="hidden w-full max-w-md bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-2xl shadow-md text-sm">
+                🎓 Voir mon Diplôme de Super Compteur !
+            </button>
+        </div>
+
+        <!-- ZONE DE JEU -->
+        <div id="game-screen" class="w-full flex flex-col items-center hidden">
+            <div id="chrono-bar-container" class="w-full bg-gray-200 rounded-full h-3 mb-4 hidden overflow-hidden">
+                <div id="chrono-progress" class="bg-rose-500 h-3 rounded-full transition-all duration-1000" style="width: 100%;"></div>
+            </div>
+
+            <div class="flex items-center justify-center space-x-2 mb-4">
+                <h3 id="instruction-text" class="text-xl font-bold text-slate-700">Consigne ici...</h3>
+                <button onclick="speakInstruction()" class="bg-indigo-100 hover:bg-indigo-200 p-2 rounded-full text-indigo-600" title="Écouter">
+                    🔊
+                </button>
+                <button onclick="startVoiceRecognition()" id="mic-btn" class="bg-rose-100 hover:bg-rose-200 p-2 rounded-full text-rose-600" title="Parler pour répondre">
+                    🎤
+                </button>
+            </div>
+
+            <div id="visual-container" class="min-h-[160px] w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-4 flex flex-wrap items-center justify-center gap-4 mb-6">
+            </div>
+
+            <div id="choices-container" class="grid grid-cols-3 gap-4 w-full max-w-md mb-4">
+            </div>
+
+            <button onclick="returnToHome()" class="text-gray-400 hover:text-gray-600 text-sm mt-2 underline">
+                ← Retour au menu
+            </button>
+        </div>
+
+    </main>
+
+    <!-- MODALES EXISTANTES (PROFILS, PARENTS, TROPHÉES, DIPLÔME) -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center">
+            <h3 class="text-xl font-bold text-indigo-600 mb-4">👥 Changer de Profil</h3>
+            <div id="modal-profiles-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto"></div>
+            <button onclick="closeProfileModal()" class="w-full bg-gray-200 text-gray-700 font-bold py-2 rounded-xl">Fermer</button>
+        </div>
+    </div>
+
+    <div id="parent-auth-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center">
+            <h3 class="text-xl font-bold text-slate-800 mb-2">🔒 Espace Parents</h3>
+            <p class="text-sm text-gray-600 mb-4" id="parent-math-question">Résous ce calcul : 4 x 3 = ?</p>
+            <input type="number" id="parent-auth-input" class="w-full border-2 border-slate-300 rounded-xl p-2 text-center text-xl mb-4" placeholder="Ta réponse">
+            <div class="flex space-x-2">
+                <button onclick="closeParentAuth()" class="w-1/2 bg-gray-200 text-gray-700 font-bold py-2 rounded-xl">Annuler</button>
+                <button onclick="verifyParentAuth()" class="w-1/2 bg-indigo-600 text-white font-bold py-2 rounded-xl">Valider</button>
             </div>
         </div>
     </div>
 
-    <!-- VUE 3 : COFFRE-FORT HISTORIQUE (VAULT) -->
-    <div class="view" id="view-history">
-        <h1>Coffre-Fort Local (Sovereign Vault)</h1>
-        <div class="subtitle">Historique de vos diagnostics stockés exclusivement en local (`localStorage`). Aucune donnée ne quitte votre appareil.</div>
-        
-        <div id="history-list" style="margin-bottom: 20px; max-height: 400px; overflow-y: auto;">
-            <!-- Injecté par JS -->
-        </div>
-
-        <div class="btn-group">
-            <button class="secondary" onclick="returnHome()">Retour</button>
-            <button class="danger" onclick="clearHistory()">Vider le Coffre-Fort</button>
+    <div id="parent-dashboard-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl text-left">
+            <h3 class="text-2xl font-bold text-indigo-600 mb-4">⚙️ Tableau de bord Parents</h3>
+            <div class="bg-slate-50 p-4 rounded-2xl mb-4 border border-slate-200">
+                <h4 class="font-bold text-slate-700 mb-2">📊 Statistiques du profil actif :</h4>
+                <p class="text-sm text-gray-600">• Étoiles cumulées : <span id="stat-score" class="font-bold text-indigo-600">0</span></p>
+                <p class="text-sm text-gray-600">• Réussites : <span id="stat-questions" class="font-bold text-emerald-600">0</span></p>
+            </div>
+            <div class="space-y-3 mb-6">
+                <h4 class="font-bold text-slate-700">♿ Options d'Accessibilité :</h4>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="toggle-dys" onchange="toggleDysMode(this.checked)" class="w-5 h-5 text-indigo-600 rounded">
+                    <span class="text-sm text-gray-700 font-medium">Activer le Mode DYS (Police adaptée)</span>
+                </label>
+            </div>
+            <button onclick="closeParentDashboard()" class="w-full bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-center">Enregistrer & Fermer</button>
         </div>
     </div>
 
-</div>
+    <div id="trophy-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl text-center">
+            <h3 class="text-2xl font-bold text-indigo-600 mb-4">🏆 Mes Trophées</h3>
+            <div id="trophy-list" class="space-y-3 mb-6"></div>
+            <button onclick="closeTrophies()" class="bg-indigo-500 text-white font-bold px-6 py-2 rounded-xl">Fermer</button>
+        </div>
+    </div>
 
-<script>
-    let currentProtocol = 'standard';
-    let currentStep = 1;
-    let currentData = {};
+    <div id="diploma-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-amber-50 border-4 border-amber-400 rounded-3xl p-8 max-w-lg w-full shadow-2xl text-center relative">
+            <span class="text-5xl mb-2 block">👑</span>
+            <h2 class="text-3xl font-bold text-amber-800 mb-2">Diplôme de Super Compteur</h2>
+            <p class="text-gray-600 mb-4">Ce certificat est fièrement décerné à :</p>
+            <div id="diploma-name" class="bg-white border border-amber-200 py-3 px-6 rounded-2xl text-2xl font-bold text-indigo-600 mb-4 shadow-inner">Le Champion 🌟</div>
+            <p class="text-sm text-gray-500 mb-6" id="diploma-score-text">Pour avoir accumulé un super score !</p>
+            <button onclick="closeDiploma()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2 rounded-xl shadow">Fermer & Continuer 🎉</button>
+        </div>
+    </div>
 
-    function switchView(viewId) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(viewId).classList.add('active');
-    }
+    <footer class="text-xs text-slate-500 mt-4">
+        123 Rigolo - L'application universelle 🎈
+    </footer>
 
-    function toggleLowStim() {
-        document.body.classList.toggle('low-stim');
-        const btn = document.getElementById('low-stim-btn');
-        if (document.body.classList.contains('low-stim')) {
-            btn.innerText = "Mode Standard";
-        } else {
-            btn.innerText = "Mode Épuré (Anti-Surcharge)";
-        }
-    }
+    <!-- LOGIQUE JAVASCRIPT COMPLÈTE -->
+    <script>
+        let profiles = JSON.parse(localStorage.getItem('123rigolo_all_profiles')) || [];
+        let activeProfileIndex = parseInt(localStorage.getItem('123rigolo_active_index')) || -1;
 
-    function startProtocol(type) {
-        currentProtocol = type;
-        currentStep = 1;
-        currentData = {};
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-        document.getElementById('step-1').classList.add('active');
-        updateProgress();
-        switchView('view-questionnaire');
-    }
-
-    function returnHome() {
-        switchView('view-home');
-    }
-
-    function updateProgress() {
-        document.getElementById('progress-indicator').innerText = `Étape ${currentStep} sur 7`;
-    }
-
-    function nextWizardStep(step) {
-        if (step === 1) {
-            currentData.decision = document.getElementById('q-decision').value.trim();
-            currentData.urgency = document.getElementById('q-urgency').value;
-            if (!currentData.decision) { alert("Veuillez saisir votre décision."); return; }
-        } else if (step === 2) {
-            currentData.stimulation = document.getElementById('q-stimulation').value;
-            currentData.trigger = document.getElementById('q-trigger').value;
-            currentData.mania = document.getElementById('q-mania').value;
-        } else if (step === 3) {
-            currentData.shadow = document.getElementById('q-shadow').value.trim();
-            if (!currentData.shadow) { alert("Veuillez remplir cette section."); return; }
-        } else if (step === 4) {
-            currentData.system = document.getElementById('q-system').value.trim();
-            if (!currentData.system) { alert("Veuillez remplir cette section."); return; }
-        } else if (step === 5) {
-            currentData.grief = document.getElementById('q-grief').value.trim();
-            currentData.jonas = document.getElementById('q-jonas').value.trim();
-            if (!currentData.grief) { alert("Veuillez exprimer le deuil associé."); return; }
-        } else if (step === 6) {
-            currentData.somatics = document.getElementById('q-somatics').value;
-            currentData.reserves = document.getElementById('q-reserves').value;
-        }
-
-        document.getElementById(`step-${currentStep}`).classList.remove('active');
-        currentStep++;
-        document.getElementById(`step-${currentStep}`).classList.add('active');
-        updateProgress();
-    }
-
-    function prevWizardStep(step) {
-        document.getElementById(`step-${currentStep}`).classList.remove('active');
-        currentStep--;
-        document.getElementById(`step-${currentStep}`).classList.add('active');
-        updateProgress();
-    }
-
-    function runCompleteAnalysis() {
-        currentData.reset = document.getElementById('q-reset').value.trim();
-        if (!currentData.reset) { alert("Veuillez répondre au test de la page blanche."); return; }
-
-        let integrity = 75;
-        let nervous = 80;
-        let loyalty = 70;
-        let actingRisk = "Faible";
-        let insights = "";
-        let profile = "";
-        let microActions = [];
-
-        // 1. Sentinelle Clinique Critique (Suicide / Désespoir)
-        if (currentData.reserves === 'critical' || currentData.urgency === 'despair') {
-            integrity = 15;
-            nervous = 20;
-            actingRisk = "CRITIQUE (Urgence Medicale)";
-            insights += `<div class="insight-item insight-warning">🚨 <strong>ALERTE SENTINELLE CLINIQUE :</strong> Les indicateurs montrent un épuisement sévère ou une détresse profonde. Cet outil ne remplace pas un suivi médical/psychiatrique d'urgence. En cas de détresse aiguë, contactez immédiatement le 3114 (Ligne Nationale de Prévention) ou le 15.</div>`;
-        }
-
-        // 2. Détection Virage Hypomaniaque / Bipolaire
-        if (currentData.mania === 'mania') {
-            integrity -= 30;
-            actingRisk = "ÉLEVÉ (Impulsion Hypomaniaque)";
-            insights += `<div class="insight-item insight-purple">⚡ <strong>Dépistage Hypomanie / Exaltation :</strong> Réduction du besoin de sommeil et sentiment de toute-puissance. Risque massif d'évaluer les risques à zéro. Appliquez un gel décisionnel strict de 14 jours.</div>`;
-        }
-
-        // 3. Détection Dopaminergique TDAH (Hyperfocus / Nouveauté)
-        if (currentData.stimulation === 'high' || currentData.stimulation === 'escape') {
-            integrity -= 20;
-            insights += `<div class="insight-item insight-amber">🧠 <strong>Alerte Dopaminergique TDAH :</strong> Le choix est fortement magnétisé par la nouveauté ou la fuite de l'ennui. Risque de désintérêt massif dès que la nouveauté s'estompera. Appliquez la Règle des 72h.</div>`;
-            microActions.push("Mettre en place une période de décantation obligatoire de 72 heures sans signature ni engagement.");
-            microActions.push("Lister les tâches routinières récurrentes que cette décision exigera dans 6 mois.");
-        }
-
-        // 4. Détection RSD / Borderline (Réactivité au Rejet)
-        if (currentData.trigger === 'rsd') {
-            integrity -= 25;
-            insights += `<div class="insight-item insight-warning">🛡️ <strong>Réactivité au Rejet / RSD :</strong> L'acte ressemble à une rupture préventive pour vous protéger d'une blessure ou d'une critique récente. Isolez la décision du conflit affectif immédiat.</div>`;
-        }
-
-        // 5. Analyse Somatique Polyvagale
-        if (currentData.somatics === 'freeze') {
-            nervous -= 35;
-            insights += `<div class="insight-item insight-amber">🌊 <strong>Sidération Vagale Dorsale (Freeze) :</strong> Votre corps est en engourdissement défensif. La décision est vécue comme une tentative de survie passive.</div>`;
-        } else if (currentData.somatics === 'agitation') {
-            actingRisk = "ÉLEVÉ (Agitation)";
-            nervous -= 20;
-        }
-
-        // 6. Sabotage / Masochisme Moral
-        if (currentData.shadow.toLowerCase().includes('punir') || currentData.shadow.toLowerCase().includes('faute')) {
-            integrity -= 20;
-            insights += `<div class="insight-item insight-amber">⚖️ <strong>Mécanisme de Sabotage / Pénitence :</strong> L'acte est teinté par une culpabilité inconsciente ou un besoin d'auto-punition.</div>`;
-        }
-
-        // 7. Page Blanche & Autonomie
-        if (currentData.reset.toLowerCase().includes('provoquer') || currentData.reset.toLowerCase().includes('autres')) {
-            loyalty = 35;
-            insights += `<div class="insight-item insight-warning">👥 <strong>Aliénation Relationnelle :</strong> L'acte est un message ou un appel adressé à l'entourage plutôt qu'un choix d'autonomie pure.</div>`;
-        } else {
-            insights += `<div class="insight-item insight-success">✅ <strong>Autonomie du Soi :</strong> Le choix conserve sa pertinence même affranchi du regard d'autrui.</div>`;
-        }
-
-        integrity = Math.max(0, Math.min(100, integrity));
-        nervous = Math.max(0, Math.min(100, nervous));
-
-        // Génération du profil
-        if (integrity >= 75 && nervous >= 60) {
-            profile = "<strong>Intégration & Souveraineté :</strong> La structure décisionnelle est mûre, les renoncements sont assumés en conscience, et l'organisme dispose des ressources pour porter la transition.";
-            microActions.push("Planifier la première action concrète d'une durée inférieure à 15 minutes.");
-        } else if (integrity >= 40) {
-            profile = "<strong>Ambivalence de Transition :</strong> Le désir d'émancipation est réel mais parasité par des réactivités émotionnelles ou des biais dopaminergiques. Un sas de décantation est indispensable.";
-            microActions.push("Dormir au moins deux nuits complètes avant toute prise de décision formelle.");
-            microActions.push("Consulter un tiers neutre (praticien/mentor) sans chercher son approbation.");
-        } else {
-            profile = "<strong>Sidération / Risque d'Acting-Out :</strong> Le profil indique une saturation neuro-émotionnelle ou une fuite en avant. Suspendez toute décision immédiate.";
-            microActions.push("Mettre en pause toute action irréversible pendant minimum 7 jours.");
-            microActions.push("Prioriser la régulation somatique (sommeil, marche, réduction des stimulants).");
-        }
-
-        currentData.results = {
-            integrity, nervous, loyalty, actingRisk, profile, insights, microActions, date: new Date().toISOString()
+        let state = {
+            level: 1,
+            targetCount: 0,
+            isChrono: false,
+            timeLeft: 30,
+            timerInterval: null,
+            dysMode: localStorage.getItem('123rigolo_dys') === 'true',
+            parentAuthAnswer: 0
         };
 
-        // Sauvegarde Vault local
-        const history = JSON.parse(localStorage.getItem('depth_compass_vault') || '[]');
-        history.push(currentData);
-        localStorage.setItem('depth_compass_vault', JSON.stringify(history));
+        const itemsDatabase = ['🍎', '⭐', '🐶', '🐱', '🚗', '🎈', '🍌', '⚽'];
+        const shapesDatabase = [
+            { name: 'carrés', symbol: '🟥' },
+            { name: 'cercles', symbol: '🔵' },
+            { name: 'triangles', symbol: '🔺' },
+            { name: 'étoiles', symbol: '⭐' }
+        ];
 
-        // Rendu UI
-        document.getElementById('res-integrity').innerText = `${integrity}%`;
-        document.getElementById('res-nervous').innerText = `${nervous}%`;
-        document.getElementById('res-loyalty').innerText = `${loyalty}%`;
-        document.getElementById('res-acting').innerText = actingRisk;
-        document.getElementById('res-profile-text').innerHTML = profile;
-        document.getElementById('res-insights').innerHTML = insights;
-
-        const actionsCard = document.getElementById('micro-actions-card');
-        const actionsList = document.getElementById('micro-actions-list');
-        actionsList.innerHTML = '';
-        if (microActions.length > 0) {
-            microActions.forEach(act => {
-                actionsList.innerHTML += `<li>${act}</li>`;
-            });
-            actionsCard.style.display = 'block';
-        } else {
-            actionsCard.style.display = 'none';
+        if (state.dysMode) {
+            document.body.classList.add('font-dys');
+            document.getElementById('toggle-dys').checked = true;
         }
 
-        switchView('view-results');
-    }
+        checkProfilesStartup();
 
-    function openHistory() {
-        const history = JSON.parse(localStorage.getItem('depth_compass_vault') || '[]');
-        const listEl = document.getElementById('history-list');
-        listEl.innerHTML = '';
+        function checkProfilesStartup() {
+            if (profiles.length === 0 || activeProfileIndex < 0 || !profiles[activeProfileIndex]) {
+                showProfileScreen();
+            } else {
+                loadActiveProfileUI();
+                showHomeScreen();
+            }
+        }
 
-        if (history.length === 0) {
-            listEl.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">Le coffre-fort est vide.</div>';
-        } else {
-            history.forEach((item, index) => {
-                listEl.innerHTML += `
-                    <div class="history-item">
-                        <div>
-                            <strong>${item.decision.substring(0, 45)}...</strong><br>
-                            <small style="color: var(--text-muted);">${new Date(item.results.date).toLocaleDateString()} — Intégrité : ${item.results.integrity}% — Acting-out : ${item.results.actingRisk}</small>
-                        </div>
-                        <button class="secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="loadHistoryItem(${index})">Revoir</button>
+        function showProfileScreen() {
+            document.getElementById('profile-screen').classList.remove('hidden');
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            
+            const grid = document.getElementById('profiles-grid');
+            grid.innerHTML = '';
+            
+            profiles.forEach((p, index) => {
+                const btn = document.createElement('button');
+                btn.className = "bg-sky-100 hover:bg-sky-200 border-2 border-sky-300 p-4 rounded-2xl flex flex-col items-center shadow transition";
+                btn.innerHTML = `<span class="text-3xl mb-1">👧👦</span><span class="font-bold text-sky-800 text-lg">${p.name}</span><span class="text-xs text-amber-700">${p.score} ⭐</span>`;
+                btn.onclick = () => selectProfile(index);
+                grid.appendChild(btn);
+            });
+            if(profiles.length === 0) {
+                grid.innerHTML = `<p class="col-span-2 text-sm text-gray-500">Aucun profil. Crée le tien ci-dessous !</p>`;
+            }
+        }
+
+        function createNewProfile() {
+            const input = document.getElementById('new-profile-input');
+            const name = input.value.trim();
+            if(!name) return alert("Entre un prénom valide !");
+            
+            profiles.push({
+                name: name,
+                score: 0,
+                successCount: 0,
+                badges: { b1: false, b2: false, b3: false }
+            });
+            localStorage.setItem('123rigolo_all_profiles', JSON.stringify(profiles));
+            input.value = '';
+            selectProfile(profiles.length - 1);
+        }
+
+        function selectProfile(index) {
+            activeProfileIndex = index;
+            localStorage.setItem('123rigolo_active_index', index);
+            loadActiveProfileUI();
+            showHomeScreen();
+        }
+
+        function switchProfile() { showProfileScreen(); }
+
+        function loadActiveProfileUI() {
+            const p = profiles[activeProfileIndex];
+            if(!p) return;
+            document.getElementById('score-display').innerText = p.score;
+            document.getElementById('header-profile-info').innerText = `Profil : ${p.name}`;
+            updateTrophyUI();
+            checkMilestones();
+        }
+
+        function showHomeScreen() {
+            document.getElementById('profile-screen').classList.add('hidden');
+            document.getElementById('home-screen').classList.remove('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+        }
+
+        function openProfileModal() {
+            const list = document.getElementById('modal-profiles-list');
+            list.innerHTML = '';
+            profiles.forEach((p, idx) => {
+                const b = document.createElement('button');
+                b.className = `w-full p-2 rounded-xl font-bold flex justify-between items-center ${idx === activeProfileIndex ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`;
+                b.innerHTML = `<span>${p.name}</span><span>${p.score} ⭐</span>`;
+                b.onclick = () => { selectProfile(idx); closeProfileModal(); };
+                list.appendChild(b);
+            });
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+        function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
+
+        // ESPACE PARENTS
+        function requestParentAccess() {
+            const a = Math.floor(Math.random() * 5) + 3;
+            const b = Math.floor(Math.random() * 5) + 2;
+            state.parentAuthAnswer = a * b;
+            document.getElementById('parent-math-question').innerText = `Résous ce calcul : ${a} × ${b} = ?`;
+            document.getElementById('parent-auth-input').value = '';
+            document.getElementById('parent-auth-modal').classList.remove('hidden');
+        }
+        function closeParentAuth() { document.getElementById('parent-auth-modal').classList.add('hidden'); }
+        function verifyParentAuth() {
+            const val = parseInt(document.getElementById('parent-auth-input').value);
+            if (val === state.parentAuthAnswer) { closeParentAuth(); openParentDashboard(); } 
+            else { alert("Mauvaise réponse !"); }
+        }
+        function openParentDashboard() {
+            const p = profiles[activeProfileIndex];
+            document.getElementById('stat-score').innerText = p ? p.score : 0;
+            document.getElementById('stat-questions').innerText = p ? p.successCount : 0;
+            document.getElementById('parent-dashboard-modal').classList.remove('hidden');
+        }
+        function closeParentDashboard() { document.getElementById('parent-dashboard-modal').classList.add('hidden'); }
+        function toggleDysMode(enabled) {
+            state.dysMode = enabled;
+            localStorage.setItem('123rigolo_dys', enabled);
+            if (enabled) document.body.classList.add('font-dys');
+            else document.body.classList.remove('font-dys');
+        }
+
+        // JEU
+        function startGame(level) {
+            stopChrono();
+            state.level = level;
+            state.isChrono = false;
+            document.getElementById('chrono-bar-container').classList.add('hidden');
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            nextQuestion();
+        }
+
+        function startChronoMode() {
+            state.isChrono = true;
+            state.level = 1;
+            state.timeLeft = 30;
+            document.getElementById('chrono-bar-container').classList.remove('hidden');
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            
+            nextQuestion();
+            
+            const progress = document.getElementById('chrono-progress');
+            progress.style.width = '100%';
+            
+            state.timerInterval = setInterval(() => {
+                state.timeLeft--;
+                progress.style.width = ((state.timeLeft / 30) * 100) + '%';
+                if (state.timeLeft <= 0) {
+                    stopChrono();
+                    alert(`Temps écoulé ! Super défi.`);
+                    showHomeScreen();
+                }
+            }, 1000);
+        }
+
+        function stopChrono() {
+            if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+        }
+
+        function returnToHome() {
+            stopChrono();
+            showHomeScreen();
+        }
+
+        function nextQuestion() {
+            const visualContainer = document.getElementById('visual-container');
+            const choicesContainer = document.getElementById('choices-container');
+            const instructionText = document.getElementById('instruction-text');
+            
+            visualContainer.innerHTML = '';
+            choicesContainer.innerHTML = '';
+
+            if (state.level === 1) {
+                // Comptage
+                const count = Math.floor(Math.random() * 5) + 1;
+                const item = itemsDatabase[Math.floor(Math.random() * itemsDatabase.length)];
+                state.targetCount = count;
+                instructionText.innerText = `Combien y a-t-il de ${getItemName(item)} ?`;
+                if (!state.isChrono) speak(instructionText.innerText);
+
+                for (let i = 0; i < count; i++) {
+                    const span = document.createElement('span');
+                    span.innerText = item;
+                    span.className = "text-4xl p-2 bg-white rounded-xl shadow-sm transform hover:scale-110 transition cursor-pointer";
+                    span.onclick = () => { speak((i + 1).toString()); };
+                    visualContainer.appendChild(span);
+                }
+                setupChoices(count, 1, 5);
+
+            } else if (state.level === 2) {
+                // Additions
+                const a = Math.floor(Math.random() * 4) + 1;
+                const b = Math.floor(Math.random() * 4) + 1;
+                const correctSum = a + b;
+                const item = itemsDatabase[Math.floor(Math.random() * itemsDatabase.length)];
+                state.targetCount = correctSum;
+                instructionText.innerText = `Combien font ${a} ${item} + ${b} ${item} ?`;
+                speak(instructionText.innerText);
+
+                let html = `<div class="flex items-center space-x-2 text-3xl">`;
+                for(let i=0; i<a; i++) html += item;
+                html += `<span class="mx-2 text-indigo-500 font-bold">+</span>`;
+                for(let i=0; i<b; i++) html += item;
+                html += `</div>`;
+                visualContainer.innerHTML = html;
+                setupChoices(correctSum, 1, 8);
+
+            } else if (state.level === 7) {
+                // NOUVEAU : Soustractions (retrait de quantités)
+                const total = Math.floor(Math.random() * 5) + 3; // 3 à 7
+                const minus = Math.floor(Math.random() * (total - 1)) + 1; // au moins 1 enlevé
+                const diff = total - minus;
+                const item = itemsDatabase[Math.floor(Math.random() * itemsDatabase.length)];
+
+                state.targetCount = diff;
+                instructionText.innerText = `Tu as ${total} ${getItemName(item)}. On en enlève ${minus}. Combien en reste-t-il ?`;
+                speak(instructionText.innerText);
+
+                let html = `<div class="flex flex-wrap justify-center items-center gap-2 text-3xl">`;
+                for(let i=0; i<diff; i++) {
+                    html += `<span class="bg-white p-2 rounded-xl shadow-sm">${item}</span>`;
+                }
+                for(let i=0; i<minus; i++) {
+                    html += `<span class="bg-gray-200 opacity-40 p-2 rounded-xl line-through">${item}</span>`;
+                }
+                html += `</div>`;
+                visualContainer.innerHTML = html;
+                setupChoices(diff, 0, total);
+
+            } else if (state.level === 3) {
+                // Suites
+                const step = Math.random() > 0.5 ? 2 : 5;
+                const start = step === 2 ? 2 : 5;
+                const seq = [start, start + step, start + (step * 2)];
+                const missing = start + (step * 3);
+                state.targetCount = missing;
+                instructionText.innerText = `Trouve le nombre manquant dans la suite :`;
+                speak("Trouve le nombre manquant");
+
+                visualContainer.innerHTML = `
+                    <div class="flex items-center space-x-2 text-2xl font-bold text-indigo-600">
+                        <span class="bg-white px-3 py-2 rounded shadow">${seq[0]}</span>→
+                        <span class="bg-white px-3 py-2 rounded shadow">${seq[1]}</span>→
+                        <span class="bg-white px-3 py-2 rounded shadow">${seq[2]}</span>→
+                        <span class="bg-indigo-100 text-indigo-800 border px-3 py-2 rounded shadow animate-pulse">?</span>
                     </div>
                 `;
+                setupChoices(missing, missing - 4, missing + 5);
+
+            } else if (state.level === 4) {
+                // Géométrie
+                const targetShape = shapesDatabase[Math.floor(Math.random() * shapesDatabase.length)];
+                const count = Math.floor(Math.random() * 4) + 1;
+                state.targetCount = count;
+                instructionText.innerText = `Combien vois-tu de ${targetShape.name} (${targetShape.symbol}) ?`;
+                speak(instructionText.innerText);
+
+                let mixed = [targetShape.symbol];
+                for(let i=0; i<count-1; i++) mixed.push(targetShape.symbol);
+                while(mixed.length < 5) mixed.push(shapesDatabase[Math.floor(Math.random()*shapesDatabase.length)].symbol);
+                mixed.sort(() => Math.random() - 0.5);
+
+                mixed.forEach(sym => {
+                    const span = document.createElement('span');
+                    span.innerText = sym;
+                    span.className = "text-4xl p-2 bg-white rounded-xl shadow-sm";
+                    visualContainer.appendChild(span);
+                });
+                setupChoices(count, 1, 5);
+
+            } else if (state.level === 5) {
+                // Multiplications
+                const a = Math.floor(Math.random() * 5) + 2;
+                const b = Math.floor(Math.random() * 5) + 2;
+                const prod = a * b;
+                state.targetCount = prod;
+                instructionText.innerText = `Combien font ${a} × ${b} ?`;
+                speak(instructionText.innerText);
+
+                visualContainer.innerHTML = `<div class="text-4xl font-bold text-purple-600">${a} × ${b} = ?</div>`;
+                setupChoices(prod, prod - 4, prod + 5);
+
+            } else if (state.level === 8) {
+                // NOUVEAU : Divisions (Partage équitable)
+                const groups = Math.floor(Math.random() * 3) + 2; // 2, 3 ou 4 groupes
+                const perGroup = Math.floor(Math.random() * 3) + 1; // 1, 2 ou 3 items par groupe
+                const total = groups * perGroup;
+                const item = itemsDatabase[Math.floor(Math.random() * itemsDatabase.length)];
+
+                state.targetCount = perGroup;
+                instructionText.innerText = `Partage ${total} ${getItemName(item)} en ${groups} groupes égaux. Combien y en a-t-il par groupe ?`;
+                speak(instructionText.innerText);
+
+                visualContainer.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <div class="text-2xl font-bold text-violet-700 mb-2">${total} ${item} ÷ ${groups} groupes</div>
+                        <div class="text-sm text-gray-500">Calcul : ${total} ÷ ${groups} = ?</div>
+                    </div>
+                `;
+                setupChoices(perGroup, 1, 5);
+
+            } else if (state.level === 6) {
+                // Heure & Monnaie
+                const type = Math.random() > 0.5 ? 'clock' : 'money';
+                if (type === 'clock') {
+                    const hour = Math.floor(Math.random() * 6) + 1;
+                    state.targetCount = hour;
+                    instructionText.innerText = `Quelle heure indique cette horloge ? (${hour} heures)`;
+                    speak("Quelle heure est-il ?");
+                    visualContainer.innerHTML = `<div class="text-5xl">🕒<span class="text-xl ml-2 font-bold">${hour}:00</span></div>`;
+                    setupChoices(hour, 1, 12);
+                } else {
+                    const val = (Math.floor(Math.random() * 4) + 1) * 2;
+                    state.targetCount = val;
+                    instructionText.innerText = `Tu as des pièces de 2€. Combien as-tu avec ${val/2} pièces ?`;
+                    speak("Combien d'euros as-tu ?");
+                    visualContainer.innerHTML = `<div class="text-3xl">🪙 2€ × ${val/2}</div>`;
+                    setupChoices(val, 2, 12);
+                }
+            }
+        }
+
+        function setupChoices(correct, minVal, maxVal) {
+            const container = document.getElementById('choices-container');
+            let choices = [correct];
+            while(choices.length < 3) {
+                let rand = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+                if (rand >= 0 && !choices.includes(rand)) choices.push(rand);
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            choices.forEach(val => {
+                const btn = document.createElement('button');
+                btn.innerText = val;
+                btn.className = "bounce-scale bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-2xl py-3 rounded-2xl shadow-md";
+                btn.onclick = () => checkAnswer(val, correct);
+                container.appendChild(btn);
             });
         }
-        switchView('view-history');
-    }
 
-    function loadHistoryItem(index) {
-        const history = JSON.parse(localStorage.getItem('depth_compass_vault') || '[]');
-        const item = history[index];
-        if (!item) return;
-
-        document.getElementById('res-integrity').innerText = `${item.results.integrity}%`;
-        document.getElementById('res-nervous').innerText = `${item.results.nervous}%`;
-        document.getElementById('res-loyalty').innerText = `${item.results.loyalty}%`;
-        document.getElementById('res-acting').innerText = item.results.actingRisk;
-        document.getElementById('res-profile-text').innerHTML = item.results.profile;
-        document.getElementById('res-insights').innerHTML = item.results.insights;
-
-        const actionsCard = document.getElementById('micro-actions-card');
-        const actionsList = document.getElementById('micro-actions-list');
-        actionsList.innerHTML = '';
-        if (item.results.microActions && item.results.microActions.length > 0) {
-            item.results.microActions.forEach(act => {
-                actionsList.innerHTML += `<li>${act}</li>`;
-            });
-            actionsCard.style.display = 'block';
-        } else {
-            actionsCard.style.display = 'none';
+        function checkAnswer(selected, correct) {
+            if (selected === correct) {
+                let p = profiles[activeProfileIndex];
+                if(p) {
+                    p.score += state.isChrono ? 15 : 10;
+                    p.successCount++;
+                    localStorage.setItem('123rigolo_all_profiles', JSON.stringify(profiles));
+                }
+                loadActiveProfileUI();
+                playAudioTone('success');
+                if(!state.isChrono) confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+                
+                checkBadgesUnlocked();
+                if(!state.isChrono) speak("Bravo !");
+                setTimeout(nextQuestion, state.isChrono ? 400 : 1200);
+            } else {
+                playAudioTone('error');
+                if(!state.isChrono) speak("Oups, essaie encore !");
+                const screen = document.getElementById('game-screen');
+                screen.classList.add('animate-bounce');
+                setTimeout(() => screen.classList.remove('animate-bounce'), 500);
+            }
         }
 
-        switchView('view-results');
-    }
+        // Reconnaissance Vocale
+        function startVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("La reconnaissance vocale n'est pas supportée par ton navigateur.");
+                return;
+            }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'fr-FR';
+            recognition.start();
 
-    function clearHistory() {
-        if (confirm("Voulez-vous effacer définitivement le coffre-fort local ?")) {
-            localStorage.removeItem('depth_compass_vault');
-            openHistory();
+            document.getElementById('mic-btn').classList.add('bg-rose-400', 'animate-pulse');
+
+            recognition.onresult = (event) => {
+                document.getElementById('mic-btn').classList.remove('bg-rose-400', 'animate-pulse');
+                const text = event.results[0][0].transcript.toLowerCase();
+                const num = parseWordToNumber(text);
+                if (num !== null) {
+                    checkAnswer(num, state.targetCount);
+                } else {
+                    speak("Je n'ai pas bien compris le nombre.");
+                }
+            };
+            recognition.onerror = () => {
+                document.getElementById('mic-btn').classList.remove('bg-rose-400', 'animate-pulse');
+            };
         }
-    }
 
-    function exportJSON() {
-        const blob = new Blob([JSON.stringify(currentData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'diagnostic-boussole-decision.json';
-        a.click();
-        URL.revokeObjectURL(url);
-    }
+        function parseWordToNumber(text) {
+            const map = {'zéro':0,'un':1,'deux':2,'trois':3,'quatre':4,'cinq':5,'six':6,'sept':7,'huit':8,'neuf':9,'dix':10,'onze':11,'douze':12,'treize':13,'quatorze':14,'quinze':15,'seize':16};
+            for(let word in map) {
+                if(text.includes(word)) return map[word];
+            }
+            let parsed = parseInt(text);
+            return isNaN(parsed) ? null : parsed;
+        }
 
-    function downloadMarkdown() {
-        const md = `# BILAN CLINIQUE DE DISCERNEMENT DÉCISIONNEL
-Date : ${new Date().toLocaleDateString()}
+        // Voix & Audio
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'fr-FR';
+                u.rate = 0.9;
+                window.speechSynthesis.speak(u);
+            }
+        }
+        function speakInstruction() { speak(document.getElementById('instruction-text').innerText); }
 
-## 1. Phénoménologie de la Décision
-- Décision : ${currentData.decision}
-- Urgence ressentie : ${currentData.urgency}
+        function playAudioTone(type) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                if(type === 'success') {
+                    osc.frequency.setValueAtTime(440, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.2);
+                } else {
+                    osc.frequency.setValueAtTime(200, ctx.currentTime);
+                    osc.frequency.setValueAtTime(140, ctx.currentTime + 0.1);
+                }
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                osc.start(); osc.stop(ctx.currentTime + 0.2);
+            } catch(e) {}
+        }
 
-## 2. Profilage Neuro-Psychiatrique
-- Stimulation / Hyperfocus : ${currentData.stimulation}
-- Réactivité au Rejet (RSD) : ${currentData.trigger}
-- Sommeil / Énergie / Hypomanie : ${currentData.mania}
+        function getItemName(emoji) {
+            const names = {'🍎': 'pommes', '⭐': 'étoiles', '🐶': 'chiots', '🐱': 'chatons', '🚗': 'voitures', '🎈': 'ballons', '🍌': 'bananes', '⚽': 'ballons'};
+            return names[emoji] || 'objets';
+        }
 
-## 3. Ombre & Fonction Cachée
-${currentData.shadow}
+        // Trophées & Diplôme
+        function checkBadgesUnlocked() {
+            let p = profiles[activeProfileIndex];
+            if(!p) return;
+            if(p.score >= 30) p.badges.b1 = true;
+            if(p.score >= 80) p.badges.b2 = true;
+            if(p.score >= 150) p.badges.b3 = true;
+            localStorage.setItem('123rigolo_all_profiles', JSON.stringify(profiles));
+            updateTrophyUI();
+        }
 
-## 4. Système & Loyautés Invisibles
-${currentData.system}
+        function updateTrophyUI() {
+            let p = profiles[activeProfileIndex];
+            if(!p) return;
+            let count = Object.values(p.badges).filter(Boolean).length;
+            document.getElementById('trophy-count').innerText = `${count}/3`;
+        }
 
-## 5. Deuil Existentiel & Jonas
-- Deuil requis : ${currentData.grief}
-- Peur de la grandeur : ${currentData.jonas}
+        function openTrophies() {
+            let p = profiles[activeProfileIndex];
+            if(!p) return;
+            const list = document.getElementById('trophy-list');
+            list.innerHTML = `
+                <div class="flex items-center justify-between p-3 rounded-2xl ${p.badges.b1 ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-400'}"><span>🥉 Premier Pas (30 pts)</span><span>${p.badges.b1 ? '✅' : '🔒'}</span></div>
+                <div class="flex items-center justify-between p-3 rounded-2xl ${p.badges.b2 ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-400'}"><span>🥈 As des Calculs (80 pts)</span><span>${p.badges.b2 ? '✅' : '🔒'}</span></div>
+                <div class="flex items-center justify-between p-3 rounded-2xl ${p.badges.b3 ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-400'}"><span>🥇 Super Champion (150 pts)</span><span>${p.badges.b3 ? '✅' : '🔒'}</span></div>
+            `;
+            document.getElementById('trophy-modal').classList.remove('hidden');
+        }
+        function closeTrophies() { document.getElementById('trophy-modal').classList.add('hidden'); }
 
-## 6. Réponse Somatique & Réserves
-- État polyvagal : ${currentData.somatics}
-- Réserves d'énergie : ${currentData.reserves}
+        function checkMilestones() {
+            let p = profiles[activeProfileIndex];
+            if(p && p.score >= 50) document.getElementById('diploma-btn').classList.remove('hidden');
+        }
 
-## 7. Test de la Page Blanche
-${currentData.reset}
-
-## 8. Métriques & Diagnostics
-- Intégrité du Soi : ${currentData.results.integrity}%
-- Résilience Nerveuse : ${currentData.results.nervous}%
-- Indice de Loyauté : ${currentData.results.loyalty}%
-- Risque d'Acting-Out : ${currentData.results.actingRisk}
-
-### Synthèse :
-${currentData.results.profile.replace(/<[^>]*>?/gm, '')}
-`;
-
-        const blob = new Blob([md], { type: 'text/markdown' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'bilan-boussole-decision.md';
-        a.click();
-        URL.revokeObjectURL(url);
-    }
-</script>
-
+        function openDiploma() {
+            let p = profiles[activeProfileIndex];
+            document.getElementById('diploma-name').innerText = p ? p.name : 'Le Champion';
+            document.getElementById('diploma-score-text').innerText = `Pour avoir accumulé ${p ? p.score : 0} étoiles avec brio !`;
+            document.getElementById('diploma-modal').classList.remove('hidden');
+            confetti({ particleCount: 100, spread: 90, origin: { y: 0.5 } });
+        }
+        function closeDiploma() { document.getElementById('diploma-modal').classList.add('hidden'); }
+    </script>
 </body>
 </html>
